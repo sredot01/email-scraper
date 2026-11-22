@@ -1,10 +1,11 @@
-import { openai } from "@ai-sdk/openai";
-import { generateText } from "ai";
+import { createOpenAI } from "@ai-sdk/openai";
+import { createLovableAiGatewayRunIdFetch } from "./run-id";
 
-export async function getAIResponse(prompt: string) {
-  const { text } = await generateText({
-    model: openai("gpt-4o"),
-    prompt,
+export const LOVABLE_AI_GATEWAY_URL = "https://ai-gateway.lovable.dev/v1";
+
+export function getLovableOpenAI() {
+  return createOpenAI({
+    baseURL: LOVABLE_AI_GATEWAY_URL,
+    fetch: createLovableAiGatewayRunIdFetch(),
   });
-  return text;
 }

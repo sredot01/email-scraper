@@ -9,7 +9,19 @@ function record(error: unknown) {
 }
 
 export function describeError(error: unknown): string {
-  return String(error);
+  const parts: string[] = [];
+  let current: unknown = error;
+  for (let depth = 0; depth < 5 && current != null; depth++) {
+    if (current instanceof Error) {
+      parts.push(current.message);
+      if (current.stack) parts.push(current.stack);
+      current = (current as any).cause;
+    } else {
+      parts.push(String(current));
+      break;
+    }
+  }
+  return parts.join("\n\n");
 }
 
 export function captureError(error: unknown) {
