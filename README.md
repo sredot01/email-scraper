@@ -1,26 +1,29 @@
-# Email Scraper
+# Welcome to your Lovable project
 
-A modern web application for scraping and managing email addresses, built with TanStack Start, React, TypeScript, and Tailwind CSS.
+This project was built with [Lovable](https://lovable.dev).
 
-## Features
+## Build with Lovable
 
-- Beautiful UI with shadcn/ui components
-- Email scraping functionality
-- Responsive design
-- Built with latest React and TanStack ecosystem
+Open your project in the [Lovable editor](https://lovable.dev) and keep building.
 
-## Getting Started
+- **Ship faster**: describe what you want to build and Lovable handles the code.
+- **Stay in sync**: connect the project to GitHub and every change made in Lovable is committed straight to your repository.
+- **Full ownership**: this code is yours. Push to your repository and your changes sync back into Lovable, ready for your next prompt.
 
-```bash
-bun install
-bun run dev
+## Development
+
+Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+
+```sh
+git clone <this-repository-url>
+cd <repository-name>
+npm i
+npm run dev
 ```
 
-## Tech Stack
+## Built with
 
-- TanStack Start / Router
-- React 19
+- TanStack Start
 - TypeScript
-- Tailwind CSS v4
-- shadcn/ui
-- Bun
+- React
+- Tailwind CSS
