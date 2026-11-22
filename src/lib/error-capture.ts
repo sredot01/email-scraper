@@ -9,28 +9,26 @@ function record(error: unknown) {
 }
 
 export function describeError(error: unknown): string {
-  const parts: string[] = [];
-  let current: unknown = error;
-  for (let depth = 0; depth < 5 && current != null; depth++) {
-    if (current instanceof Error) {
-      parts.push(current.message);
-      if (current.stack) parts.push(current.stack);
-      current = (current as any).cause;
-    } else {
-      parts.push(String(current));
-      break;
-    }
-  }
-  return parts.join("\n\n");
+  if (error instanceof Error) return error.stack ?? error.message;
+  return String(error);
 }
 
 export function captureError(error: unknown) {
   record(error);
 }
 
-export function getLastCapturedError() {
-  if (lastCapturedError && Date.now() - lastCapturedError.at < TTL_MS) {
-    return lastCapturedError.error;
+export function consumeLastCapturedError(): unknown {
+  if (!lastCapturedError) return undefined;
+  if (Date.now() - lastCapturedError.at > TTL_MS) {
+    lastCapturedError = undefined;
+    return undefined;
   }
-  return undefined;
+  const { error } = lastCapturedError;
+  lastCapturedError = undefined;
+  return error;
+}
+
+if (typeof globalThis !== "undefined" && typeof (globalThis as any).addEventListener === "function") {
+  (globalThis as any).addEventListener("error", (event: any) => record(event.error ?? event));
+  (globalThis as any).addEventListener("unhandledrejection", (event: any) => record(event.reason));
 }
