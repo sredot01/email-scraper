@@ -1,15 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
-import { z } from "zod";
-
-const GeneratePrepSchema = z.object({
-  role: z.string().min(1),
-  company: z.string().optional(),
-  experience: z.string().optional(),
-});
+import type { InterviewPrep } from "./interview-prep.server";
 
 export const generateInterviewPrep = createServerFn({ method: "POST" })
-  .validator(GeneratePrepSchema)
+  .inputValidator((data: { emailText: string }) => data)
   .handler(async ({ data }) => {
     const { generatePrep } = await import("./interview-prep.server");
-    return generatePrep(data);
+    return generatePrep(data.emailText);
   });
