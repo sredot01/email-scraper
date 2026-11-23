@@ -18,7 +18,7 @@ export async function generatePrep(emailText: string): Promise<InterviewPrep> {
 
   const google = createGoogleGenerativeAI({ apiKey });
   const { text } = await generateText({
-    model: google("gemini-2.0-flash"),
+    model: google("gemini-3.8-flash"),
     prompt: `You are an expert interview coach. Analyze this interview email and return a structured prep plan.\n\nEmail:\n${emailText}\n\nRespond in this exact format:\nCOMPANY: ...\nROLE: ...\nDATE: ...\nTOPICS: topic1, topic2, topic3\nQUESTIONS:\n- question 1\n- question 2\nPLAN: a concise time-boxed preparation plan`,
   });
 
