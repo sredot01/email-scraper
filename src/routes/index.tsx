@@ -9,16 +9,28 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "Interview Prep — AI Game Plan" },
-      { name: "description", content: "Turn any interview email into a personalized study plan, practice questions, and action steps." },
+      { name: "description", content: "Turn any interview email into a personalized study plan with topics, questions, and resources." },
     ],
   }),
   component: Index,
 });
 
-const SAMPLE_EMAILS = [
-  { label: "Platform", text: `Subject: Interview — Please confirm\n\nHi Alex,\n\nGreat speaking with you! Your video interview with Acme Cloud for the Platform Engineer role is scheduled for Friday 10/30 at 3:00 PM IST and will run for 60 minutes via Microsoft Teams. Please join 10 minutes early with your camera on.\n\nWe'd like to cover: Kubernetes and container troubleshooting, Terraform modules, CI/CD pipeline design, and your experience mentoring junior engineers.\n\nPlease reply to confirm.\n\nBest regards,\nPriya Sharma` },
-  { label: "Frontend", text: `Subject: Technical Interview Invite\n\nHi Jordan,\n\nWe're excited to invite you to a 45-minute technical interview for the Senior Frontend Engineer position at Pixel Labs on Monday 11/3 at 11:00 AM EST via Zoom.\n\nFocus areas: React performance, state management, accessibility, and system design for component libraries.\n\nPlease confirm.\n\nThanks,\nSam Rivera` },
+const SAMPLE_OPTIONS = [
+  { value: "", label: "Choose a sample email…" },
+  { value: "platform", label: "Platform Engineer (Acme Cloud)" },
+  { value: "frontend", label: "Senior Frontend Engineer (Pixel Labs)" },
+  { value: "backend", label: "Backend Engineer (DataFlow)" },
+  { value: "fullstack", label: "Full Stack Engineer (Nova)" },
+  { value: "devops", label: "DevOps Engineer (CloudScale)" },
 ];
+
+const SAMPLE_TEXTS: Record<string, string> = {
+  platform: `Subject: Interview — Please confirm\n\nHi Alex,\n\nGreat speaking with you! Your video interview with Acme Cloud for the Platform Engineer role is scheduled for Friday 10/30 at 3:00 PM IST and will run for 60 minutes via Microsoft Teams. Please join 10 minutes early with your camera on.\n\nWe'd like to cover: Kubernetes and container troubleshooting, Terraform modules, CI/CD pipeline design, and your experience mentoring junior engineers.\n\nPlease reply to confirm.\n\nBest regards,\nPriya Sharma`,
+  frontend: `Subject: Technical Interview Invite\n\nHi Jordan,\n\nWe're excited to invite you to a 45-minute technical interview for the Senior Frontend Engineer position at Pixel Labs on Monday 11/3 at 11:00 AM EST via Zoom.\n\nFocus areas: React performance, state management, accessibility, and system design for component libraries.\n\nPlease confirm.\n\nThanks,\nSam Rivera`,
+  backend: `Subject: Backend Interview Confirmation\n\nHi Priya,\n\nYour interview for Backend Engineer at DataFlow is set for Wednesday 11/5 at 10:00 AM PST via Google Meet (60 minutes).\n\nTopics: API design, database optimization, distributed systems, and caching strategies.\n\nPlease confirm availability.\n\nRegards,\nAlex Chen`,
+  fullstack: `Subject: Full Stack Interview\n\nHi Maya,\n\nJoin us for a 90-minute full stack interview at Nova on Thursday 11/6 at 2:00 PM EST via Zoom.\n\nWe'll cover: React + Node.js architecture, database design, and end-to-end system design.\n\nConfirm when ready.\n\nBest,\nJordan Lee`,
+  devops: `Subject: DevOps Interview Invite\n\nHi Sam,\n\nYour DevOps Engineer interview with CloudScale is scheduled for Friday 11/7 at 1:00 PM IST via Teams (75 minutes).\n\nFocus: Kubernetes, CI/CD, infrastructure as code, and monitoring.\n\nPlease confirm.\n\nThanks,\nPriya Nair`,
+};
 
 function Index() {
   const prepFn = useServerFn(generateInterviewPrep);
@@ -29,11 +41,17 @@ function Index() {
   const [history, setHistory] = useState<InterviewPrep[]>([]);
   const [activeTab, setActiveTab] = useState<"overview" | "topics" | "questions" | "plan">("overview");
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
+  const [selectedSample, setSelectedSample] = useState("");
 
   useEffect(() => {
     const saved = localStorage.getItem("interview-prep-history");
     if (saved) setHistory(JSON.parse(saved));
   }, []);
+
+  function onSampleChange(value: string) {
+    setSelectedSample(value);
+    if (value && SAMPLE_TEXTS[value]) setEmailText(SAMPLE_TEXTS[value]);
+  }
 
   async function handleGenerate() {
     setError(null);
@@ -81,66 +99,66 @@ function Index() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/30 text-foreground">
+    <div className="min-h-screen bg-zinc-950 text-zinc-100">
       <main className="mx-auto max-w-4xl px-4 py-10 sm:px-6 sm:py-14">
         <header className="mb-10 text-center">
-          <div className="inline-flex items-center gap-2 rounded-full border bg-card px-3 py-1 text-xs font-medium text-muted-foreground">
-            <span className="size-1.5 rounded-full bg-green-500" /> Free Gemini • Rate limited
-          </div>
-          <h1 className="mt-4 font-display text-4xl font-bold tracking-tight sm:text-5xl">
+          <h1 className="font-display text-4xl font-bold tracking-tight sm:text-5xl text-white">
             Interview Game Plan
           </h1>
-          <p className="mx-auto mt-3 max-w-lg text-muted-foreground">
-            Paste an interview email. Get topics, questions, and a timed plan in seconds.
+          <p className="mx-auto mt-3 max-w-lg text-zinc-400">
+            Paste an interview email. Get topics, questions, and a timed plan with helpful resources.
           </p>
         </header>
 
-        <section className="rounded-3xl border bg-card/70 p-5 shadow-xl backdrop-blur-sm sm:p-6">
+        <section className="rounded-3xl border border-zinc-800 bg-zinc-900/60 p-5 shadow-2xl sm:p-6">
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-            <label className="text-sm font-medium">Interview email</label>
-            <div className="flex gap-2">
-              {SAMPLE_EMAILS.map(s => (
-                <button key={s.label} type="button" onClick={() => setEmailText(s.text)}
-                  className="rounded-full border px-3 py-1 text-xs hover:bg-accent">{s.label}</button>
+            <label className="text-sm font-medium text-zinc-300">Interview email</label>
+            <select
+              value={selectedSample}
+              onChange={e => onSampleChange(e.target.value)}
+              className="rounded-full border border-zinc-700 bg-zinc-800 px-4 py-1.5 text-sm text-zinc-200 outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              {SAMPLE_OPTIONS.map(o => (
+                <option key={o.value} value={o.value}>{o.label}</option>
               ))}
-            </div>
+            </select>
           </div>
           <textarea
             value={emailText}
             onChange={e => setEmailText(e.target.value)}
             rows={7}
             placeholder="Paste the full email here…"
-            className="w-full resize-y rounded-2xl border bg-background p-4 text-sm leading-relaxed outline-none focus:ring-2 focus:ring-primary"
+            className="w-full resize-y rounded-2xl border border-zinc-700 bg-zinc-950 p-4 text-sm leading-relaxed text-zinc-100 outline-none placeholder:text-zinc-500 focus:ring-2 focus:ring-blue-500"
           />
           <div className="mt-4 flex flex-wrap items-center gap-3">
             <button
               onClick={handleGenerate}
               disabled={isPending || !emailText.trim()}
-              className="rounded-full bg-primary px-7 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg transition hover:opacity-90 disabled:opacity-40"
+              className="rounded-full bg-blue-600 px-7 py-2.5 text-sm font-semibold text-white shadow-lg transition hover:bg-blue-500 disabled:opacity-40"
             >
               {isPending ? "Generating…" : "Generate prep"}
             </button>
             {prep && (
-              <button onClick={exportMd} className="rounded-full border px-4 py-2 text-sm hover:bg-accent">
+              <button onClick={exportMd} className="rounded-full border border-zinc-600 px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-800">
                 Export .md
               </button>
             )}
           </div>
-          {error && <p className="mt-4 rounded-xl border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive">{error}</p>}
+          {error && <p className="mt-4 rounded-xl border border-red-500/40 bg-red-500/10 p-3 text-sm text-red-400">{error}</p>}
           {isPending && (
-            <div className="mt-5 flex items-center gap-3 text-sm text-muted-foreground">
-              <span className="size-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-              Trying free models…
+            <div className="mt-5 flex items-center gap-3 text-sm text-zinc-400">
+              <span className="size-4 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
+              Building your plan…
             </div>
           )}
         </section>
 
         {history.length > 0 && !prep && (
           <div className="mt-6 flex flex-wrap gap-2">
-            <span className="text-xs text-muted-foreground">Recent:</span>
+            <span className="text-xs text-zinc-500">Recent:</span>
             {history.map((h, i) => (
               <button key={i} onClick={() => { setPrep(h); setActiveTab("overview"); }}
-                className="rounded-full border bg-card px-3 py-1 text-xs hover:bg-accent">
+                className="rounded-full border border-zinc-700 bg-zinc-900 px-3 py-1 text-xs text-zinc-300 hover:bg-zinc-800">
                 {h.company || "Untitled"}
               </button>
             ))}
@@ -149,11 +167,11 @@ function Index() {
 
         {prep && (
           <div className="mt-10">
-            <div className="mb-6 flex flex-wrap gap-2 border-b pb-2">
+            <div className="mb-6 flex flex-wrap gap-2 border-b border-zinc-800 pb-2">
               {(["overview", "topics", "questions", "plan"] as const).map(tab => (
                 <button key={tab} onClick={() => setActiveTab(tab)}
                   className={`rounded-full px-4 py-1.5 text-sm font-medium capitalize transition ${
-                    activeTab === tab ? "bg-primary text-primary-foreground" : "hover:bg-accent"
+                    activeTab === tab ? "bg-blue-600 text-white" : "text-zinc-400 hover:bg-zinc-800"
                   }`}>
                   {tab}
                 </button>
@@ -161,20 +179,20 @@ function Index() {
             </div>
 
             {activeTab === "overview" && (
-              <section className="rounded-3xl border bg-card p-6 shadow-md">
+              <section className="rounded-3xl border border-zinc-800 bg-zinc-900 p-6">
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <h2 className="font-display text-3xl font-bold">{prep.company || "Interview"}</h2>
-                    {prep.role && <span className="mt-2 inline-block rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">{prep.role}</span>}
+                    <h2 className="font-display text-3xl font-bold text-white">{prep.company || "Interview"}</h2>
+                    {prep.role && <span className="mt-2 inline-block rounded-full bg-blue-500/20 px-3 py-1 text-xs font-medium text-blue-300">{prep.role}</span>}
                   </div>
-                  <button onClick={() => copy(`${prep.company}\n${prep.role}\n${prep.interviewWhen}`, "Overview")} className="text-xs text-muted-foreground hover:text-foreground">Copy</button>
+                  <button onClick={() => copy(`${prep.company}\n${prep.role}\n${prep.interviewWhen}`, "Overview")} className="text-xs text-zinc-500 hover:text-zinc-300">Copy</button>
                 </div>
-                {prep.interviewWhen && <p className="mt-3 font-medium">{prep.interviewWhen}</p>}
-                {prep.summary && <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{prep.summary}</p>}
+                {prep.interviewWhen && <p className="mt-3 font-medium text-zinc-200">{prep.interviewWhen}</p>}
+                {prep.summary && <p className="mt-3 text-sm leading-relaxed text-zinc-400">{prep.summary}</p>}
                 {prep.notes.length > 0 && (
-                  <div className="mt-5 rounded-2xl border-l-4 border-destructive bg-destructive/5 p-4">
-                    <p className="text-xs font-bold uppercase text-destructive">Important</p>
-                    <ul className="mt-2 list-disc pl-5 text-sm space-y-1">{prep.notes.map((n, i) => <li key={i}>{n}</li>)}</ul>
+                  <div className="mt-5 rounded-2xl border-l-4 border-red-500 bg-red-500/10 p-4">
+                    <p className="text-xs font-bold uppercase text-red-400">Important</p>
+                    <ul className="mt-2 list-disc pl-5 text-sm space-y-1 text-zinc-300">{prep.notes.map((n, i) => <li key={i}>{n}</li>)}</ul>
                   </div>
                 )}
               </section>
@@ -183,9 +201,13 @@ function Index() {
             {activeTab === "topics" && (
               <div className="grid gap-3 sm:grid-cols-2">
                 {prep.topics.map((t, i) => (
-                  <div key={i} className="rounded-2xl border bg-card p-4 shadow-sm">
-                    <p className="font-semibold">{i + 1}. {t.name}</p>
-                    <p className="mt-1 text-sm text-muted-foreground">{t.focus}</p>
+                  <div key={i} className="rounded-2xl border border-zinc-800 bg-zinc-900 p-4">
+                    <p className="font-semibold text-white">{i + 1}. {t.name}</p>
+                    <p className="mt-1 text-sm text-zinc-400">{t.focus}</p>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <a href={`https://www.google.com/search?q=${encodeURIComponent(t.name + " interview questions tutorial")}`} target="_blank" rel="noopener" className="text-xs text-blue-400 hover:underline">Search resources</a>
+                      <a href={`https://www.youtube.com/results?search_query=${encodeURIComponent(t.name + " explained")}`} target="_blank" rel="noopener" className="text-xs text-blue-400 hover:underline">YouTube</a>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -194,10 +216,10 @@ function Index() {
             {activeTab === "questions" && (
               <div className="space-y-3">
                 {prep.questions.map((q, i) => (
-                  <div key={i} className="rounded-2xl border bg-card p-5">
-                    <span className="rounded-full bg-secondary px-2.5 py-0.5 text-xs font-medium">{q.category}</span>
-                    <p className="mt-2 font-medium">{q.question}</p>
-                    <p className="mt-2 text-sm text-muted-foreground"><span className="font-medium text-foreground">Strong answer: </span>{q.whatTheyLookFor}</p>
+                  <div key={i} className="rounded-2xl border border-zinc-800 bg-zinc-900 p-5">
+                    <span className="rounded-full bg-zinc-800 px-2.5 py-0.5 text-xs font-medium text-zinc-300">{q.category}</span>
+                    <p className="mt-2 font-medium text-zinc-100">{q.question}</p>
+                    <p className="mt-2 text-sm text-zinc-400"><span className="font-medium text-zinc-200">Strong answer: </span>{q.whatTheyLookFor}</p>
                   </div>
                 ))}
               </div>
@@ -205,25 +227,25 @@ function Index() {
 
             {activeTab === "plan" && (
               <div className="space-y-4">
-                <div className="flex items-center justify-between text-sm">
+                <div className="flex items-center justify-between text-sm text-zinc-400">
                   <span>Progress</span>
-                  <span className="font-medium">{completedSteps.size}/{prep.prepPlan.length} done</span>
+                  <span className="font-medium text-zinc-200">{completedSteps.size}/{prep.prepPlan.length} done</span>
                 </div>
-                <div className="h-2 overflow-hidden rounded-full bg-muted">
-                  <div className="h-full bg-primary transition-all" style={{ width: `${(completedSteps.size / Math.max(prep.prepPlan.length, 1)) * 100}%` }} />
+                <div className="h-2 overflow-hidden rounded-full bg-zinc-800">
+                  <div className="h-full bg-blue-600 transition-all" style={{ width: `${(completedSteps.size / Math.max(prep.prepPlan.length, 1)) * 100}%` }} />
                 </div>
                 <ol className="space-y-3">
                   {prep.prepPlan.map((step, i) => (
-                    <li key={i} className="flex gap-4 rounded-2xl border bg-card p-4">
+                    <li key={i} className="flex gap-4 rounded-2xl border border-zinc-800 bg-zinc-900 p-4">
                       <button onClick={() => toggleStep(i)}
                         className={`mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full text-xs font-bold transition ${
-                          completedSteps.has(i) ? "bg-green-500 text-white" : "bg-primary text-primary-foreground"
+                          completedSteps.has(i) ? "bg-green-500 text-white" : "bg-blue-600 text-white"
                         }`}>
                         {completedSteps.has(i) ? "✓" : i + 1}
                       </button>
                       <div className={completedSteps.has(i) ? "opacity-60 line-through" : ""}>
-                        <p className="font-semibold">{step.task} <span className="ml-2 rounded-full bg-secondary px-2 py-0.5 text-xs">{step.when}</span></p>
-                        <p className="mt-1 text-sm text-muted-foreground">{step.detail}</p>
+                        <p className="font-semibold text-zinc-100">{step.task} <span className="ml-2 rounded-full bg-zinc-800 px-2 py-0.5 text-xs text-zinc-300">{step.when}</span></p>
+                        <p className="mt-1 text-sm text-zinc-400">{step.detail}</p>
                       </div>
                     </li>
                   ))}
