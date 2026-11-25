@@ -152,6 +152,16 @@ function Index() {
 
   const progressPercent = prep ? Math.round((completedSteps.size / Math.max(prep.prepPlan.length, 1)) * 100) : 0;
 
+  function getResourceLinks(topic: string) {
+    const q = encodeURIComponent(topic);
+    return [
+      { label: "Docs", href: `https://www.google.com/search?q=${q}+official+documentation` },
+      { label: "Articles", href: `https://www.google.com/search?q=${q}+best+practices+guide` },
+      { label: "YouTube", href: `https://www.youtube.com/results?search_query=${q}+tutorial` },
+      { label: "Practice", href: `https://www.google.com/search?q=${q}+interview+questions+practice` },
+    ];
+  }
+
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100">
       <main className="mx-auto max-w-4xl px-4 py-10 sm:px-6 sm:py-14">
@@ -250,9 +260,18 @@ function Index() {
                   <div key={i} className="rounded-2xl border border-zinc-800 bg-zinc-900 p-4">
                     <p className="font-semibold text-white">{i + 1}. {t.name}</p>
                     <p className="mt-1 text-sm text-zinc-400">{t.focus}</p>
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      <a href={`https://www.google.com/search?q=${encodeURIComponent(t.name + " interview questions tutorial")}`} target="_blank" rel="noopener" className="text-xs text-red-400 hover:underline">Search resources</a>
-                      <a href={`https://www.youtube.com/results?search_query=${encodeURIComponent(t.name + " explained")}`} target="_blank" rel="noopener" className="text-xs text-red-400 hover:underline">YouTube</a>
+                    <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1">
+                      {getResourceLinks(t.name).map(link => (
+                        <a
+                          key={link.label}
+                          href={link.href}
+                          target="_blank"
+                          rel="noopener"
+                          className="text-xs text-red-400 hover:underline"
+                        >
+                          {link.label}
+                        </a>
+                      ))}
                     </div>
                   </div>
                 ))}
