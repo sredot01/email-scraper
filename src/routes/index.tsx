@@ -66,7 +66,7 @@ function CustomSelect({ value, onChange }: { value: string; onChange: (v: string
               type="button"
               onClick={() => { onChange(o.value); setOpen(false); }}
               className={`block w-full px-4 py-2.5 text-left text-sm transition ${
-                o.value === value ? "bg-blue-600 text-white" : "text-zinc-200 hover:bg-zinc-800"
+                o.value === value ? "bg-red-600 text-white" : "text-zinc-200 hover:bg-zinc-800"
               }`}
             >
               {o.label}
@@ -166,13 +166,13 @@ function Index() {
             onChange={e => setEmailText(e.target.value)}
             rows={7}
             placeholder="Paste the full email here…"
-            className="w-full resize-y rounded-2xl border border-zinc-700 bg-zinc-950 p-4 text-sm leading-relaxed text-zinc-100 outline-none placeholder:text-zinc-500 focus:ring-2 focus:ring-blue-500"
+            className="w-full resize-y rounded-2xl border border-zinc-700 bg-zinc-950 p-4 text-sm leading-relaxed text-zinc-100 outline-none placeholder:text-zinc-500 focus:ring-2 focus:ring-red-500"
           />
           <div className="mt-4 flex flex-wrap items-center gap-3">
             <button
               onClick={handleGenerate}
               disabled={isPending || !emailText.trim()}
-              className="rounded-full bg-blue-600 px-7 py-2.5 text-sm font-semibold text-white shadow-lg transition hover:bg-blue-500 disabled:opacity-40"
+              className="rounded-full bg-red-600 px-7 py-2.5 text-sm font-semibold text-white shadow-lg transition hover:bg-red-500 disabled:opacity-40"
             >
               {isPending ? "Generating…" : "Generate prep"}
             </button>
@@ -185,7 +185,7 @@ function Index() {
           {error && <p className="mt-4 rounded-xl border border-red-500/40 bg-red-500/10 p-3 text-sm text-red-400">{error}</p>}
           {isPending && (
             <div className="mt-5 flex items-center gap-3 text-sm text-zinc-400">
-              <span className="size-4 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
+              <span className="size-4 animate-spin rounded-full border-2 border-red-500 border-t-transparent" />
               Building your plan…
             </div>
           )}
@@ -209,7 +209,7 @@ function Index() {
               {(["overview", "topics", "questions", "plan"] as const).map(tab => (
                 <button key={tab} onClick={() => setActiveTab(tab)}
                   className={`rounded-full px-4 py-1.5 text-sm font-medium capitalize transition ${
-                    activeTab === tab ? "bg-blue-600 text-white" : "text-zinc-400 hover:bg-zinc-800"
+                    activeTab === tab ? "bg-red-600 text-white" : "text-zinc-400 hover:bg-zinc-800"
                   }`}>
                   {tab}
                 </button>
@@ -221,7 +221,7 @@ function Index() {
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <h2 className="font-display text-3xl font-bold text-white">{prep.company || "Interview"}</h2>
-                    {prep.role && <span className="mt-2 inline-block rounded-full bg-blue-500/20 px-3 py-1 text-xs font-medium text-blue-300">{prep.role}</span>}
+                    {prep.role && <span className="mt-2 inline-block rounded-full bg-red-500/20 px-3 py-1 text-xs font-medium text-red-300">{prep.role}</span>}
                   </div>
                   <button onClick={() => copy(`${prep.company}\n${prep.role}\n${prep.interviewWhen}`, "Overview")} className="text-xs text-zinc-500 hover:text-zinc-300">Copy</button>
                 </div>
@@ -243,8 +243,8 @@ function Index() {
                     <p className="font-semibold text-white">{i + 1}. {t.name}</p>
                     <p className="mt-1 text-sm text-zinc-400">{t.focus}</p>
                     <div className="mt-3 flex flex-wrap gap-2">
-                      <a href={`https://www.google.com/search?q=${encodeURIComponent(t.name + " interview questions tutorial")}`} target="_blank" rel="noopener" className="text-xs text-blue-400 hover:underline">Search resources</a>
-                      <a href={`https://www.youtube.com/results?search_query=${encodeURIComponent(t.name + " explained")}`} target="_blank" rel="noopener" className="text-xs text-blue-400 hover:underline">YouTube</a>
+                      <a href={`https://www.google.com/search?q=${encodeURIComponent(t.name + " interview questions tutorial")}`} target="_blank" rel="noopener" className="text-xs text-red-400 hover:underline">Search resources</a>
+                      <a href={`https://www.youtube.com/results?search_query=${encodeURIComponent(t.name + " explained")}`} target="_blank" rel="noopener" className="text-xs text-red-400 hover:underline">YouTube</a>
                     </div>
                   </div>
                 ))}
@@ -270,14 +270,14 @@ function Index() {
                   <span className="font-medium text-zinc-200">{completedSteps.size}/{prep.prepPlan.length} done</span>
                 </div>
                 <div className="h-2 overflow-hidden rounded-full bg-zinc-800">
-                  <div className="h-full bg-blue-600 transition-all" style={{ width: `${(completedSteps.size / Math.max(prep.prepPlan.length, 1)) * 100}%` }} />
+                  <div className="h-full bg-red-600 transition-all" style={{ width: `${(completedSteps.size / Math.max(prep.prepPlan.length, 1)) * 100}%` }} />
                 </div>
                 <ol className="space-y-3">
                   {prep.prepPlan.map((step, i) => (
                     <li key={i} className="flex gap-4 rounded-2xl border border-zinc-800 bg-zinc-900 p-4">
                       <button onClick={() => toggleStep(i)}
                         className={`mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full text-xs font-bold transition ${
-                          completedSteps.has(i) ? "bg-green-500 text-white" : "bg-blue-600 text-white"
+                          completedSteps.has(i) ? "bg-green-500 text-white" : "bg-red-600 text-white"
                         }`}>
                         {completedSteps.has(i) ? "✓" : i + 1}
                       </button>
