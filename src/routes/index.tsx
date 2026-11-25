@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { generateInterviewPrep } from "@/lib/interview-prep.functions";
 import type { InterviewPrep } from "@/lib/interview-prep.server";
 import { toast } from "sonner";
@@ -31,6 +31,52 @@ const SAMPLE_TEXTS: Record<string, string> = {
   fullstack: `Subject: Full Stack Interview\n\nHi Maya,\n\nJoin us for a 90-minute full stack interview at Nova on Thursday 11/6 at 2:00 PM EST via Zoom.\n\nWe'll cover: React + Node.js architecture, database design, and end-to-end system design.\n\nConfirm when ready.\n\nBest,\nJordan Lee`,
   devops: `Subject: DevOps Interview Invite\n\nHi Sam,\n\nYour DevOps Engineer interview with CloudScale is scheduled for Friday 11/7 at 1:00 PM IST via Teams (75 minutes).\n\nFocus: Kubernetes, CI/CD, infrastructure as code, and monitoring.\n\nPlease confirm.\n\nThanks,\nPriya Nair`,
 };
+
+function CustomSelect({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
+  const selected = SAMPLE_OPTIONS.find(o => o.value === value) || SAMPLE_OPTIONS[0];
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className="flex items-center gap-2 rounded-full border border-zinc-700 bg-zinc-800 px-4 py-1.5 text-sm text-zinc-200 hover:bg-zinc-700"
+      >
+        <span className="max-w-[180px] truncate">{selected.label}</span>
+        <svg className={`size-4 transition ${"open ? "rotate-180" : ""}`}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+      {open && (
+        <div className="absolute right-0 z-50 mt-2 w-72 overflow-hidden rounded-2xl border border-zinc-700 bg-zinc-900 shadow-2xl">
+          {SAMPLE_OPTIONS.map(o => (
+            <button
+              key={o.value}
+              type="button"
+              onClick={() => { onChange(o.value); setOpen(false); }}
+              className={`block w-full px-4 py-2.5 text-left text-sm transition ${
+                o.value === value ? "bg-blue-600 text-white" : "text-zinc-200 hover:bg-zinc-800"
+              }`}
+            >
+              {o.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 function Index() {
   const prepFn = useServerFn(generateInterviewPrep);
@@ -113,15 +159,7 @@ function Index() {
         <section className="rounded-3xl border border-zinc-800 bg-zinc-900/60 p-5 shadow-2xl sm:p-6">
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
             <label className="text-sm font-medium text-zinc-300">Interview email</label>
-            <select
-              value={selectedSample}
-              onChange={e => onSampleChange(e.target.value)}
-              className="rounded-full border border-zinc-700 bg-zinc-800 px-4 py-1.5 text-sm text-zinc-200 outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              {SAMPLE_OPTIONS.map(o => (
-                <option key={o.value} value={o.value}>{o.label}</option>
-              ))}
-            </select>
+            <CustomSelect value={selectedSample} onChange={onSampleChange} />
           </div>
           <textarea
             value={emailText}
