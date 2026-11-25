@@ -139,10 +139,18 @@ function Index() {
   function toggleStep(i: number) {
     setCompletedSteps(prev => {
       const next = new Set(prev);
-      next.has(i) ? next.delete(i) : next.add(i);
+      if (next.has(i)) {
+        next.delete(i);
+        toast.message("Step unmarked");
+      } else {
+        next.add(i);
+        toast.success("Step completed!");
+      }
       return next;
     });
   }
+
+  const progressPercent = prep ? Math.round((completedSteps.size / Math.max(prep.prepPlan.length, 1)) * 100) : 0;
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100">
@@ -265,28 +273,41 @@ function Index() {
 
             {activeTab === "plan" && (
               <div className="space-y-4">
-                <div className="flex items-center justify-between text-sm text-zinc-400">
-                  <span>Progress</span>
-                  <span className="font-medium text-zinc-200">{completedSteps.size}/{prep.prepPlan.length} done</span>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-zinc-400">Progress</span>
+                  <span className="font-semibold text-red-400">{completedSteps.size}/{prep.prepPlan.length} done • {progressPercent}%</span>
                 </div>
-                <div className="h-2 overflow-hidden rounded-full bg-zinc-800">
-                  <div className="h-full bg-red-600 transition-all" style={{ width: `${(completedSteps.size / Math.max(prep.prepPlan.length, 1)) * 100}%` }} />
+                <div className="h-3 overflow-hidden rounded-full bg-zinc-800">
+                  <div
+                    className="h-full bg-red-600 transition-all duration-300 ease-out"
+                    style={{ width: `${progressPercent}%` }}
+                  />
                 </div>
                 <ol className="space-y-3">
-                  {prep.prepPlan.map((step, i) => (
-                    <li key={i} className="flex gap-4 rounded-2xl border border-zinc-800 bg-zinc-900 p-4">
-                      <button onClick={() => toggleStep(i)}
-                        className={`mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full text-xs font-bold transition ${
-                          completedSteps.has(i) ? "bg-green-500 text-white" : "bg-red-600 text-white"
-                        }`}>
-                        {completedSteps.has(i) ? "✓" : i + 1}
-                      </button>
-                      <div className={completedSteps.has(i) ? "opacity-60 line-through" : ""}>
-                        <p className="font-semibold text-zinc-100">{step.task} <span className="ml-2 rounded-full bg-zinc-800 px-2 py-0.5 text-xs text-zinc-300">{step.when}</span></p>
-                        <p className="mt-1 text-sm text-zinc-400">{step.detail}</p>
-                      </div>
-                    </li>
-                  ))}
+                  {prep.prepPlan.map((step, i) => {
+                    const done = completedSteps.has(i);
+                    return (
+                      <li key={i} className={`flex gap-4 rounded-2xl border bg-zinc-900 p-4 transition ${
+                        done ? "border-green-500/40" : "border-zinc-800"
+                      }`}>
+                        <button
+                          onClick={() => toggleStep(i)}
+                          className={`mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-bold transition-all ${
+                            done ? "bg-green-500 text-white scale-105" : "bg-red-600 text-white hover:scale-105"
+                          }`}
+                        >
+                          {done ? "✓" : i + 1}
+                        </button>
+                        <div className={done ? "opacity-60" : ""}>
+                          <p className={`font-semibold ${done ? "line-through text-zinc-400" : "text-zinc-100"}`}>
+                            {step.task}{" "}
+                            <span className="ml-2 rounded-full bg-zinc-800 px-2 py-0.5 text-xs text-zinc-300">{step.when}</span>
+                          </p>
+                          <p className="mt-1 text-sm text-zinc-400">{step.detail}</p>
+                        </div>
+                      </li>
+                    );
+                  })}
                 </ol>
               </div>
             )}
