@@ -54,7 +54,7 @@ function CustomSelect({ value, onChange }: { value: string; onChange: (v: string
         className="flex items-center gap-2 rounded-full border border-zinc-700 bg-zinc-800 px-4 py-1.5 text-sm text-zinc-200 hover:bg-zinc-700"
       >
         <span className="max-w-[180px] truncate">{selected.label}</span>
-        <svg className={`size-4 transition ${"open ? "rotate-180" : ""}`}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg className={`size-4 transition ${open ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
       </button>
